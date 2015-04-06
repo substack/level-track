@@ -1,6 +1,5 @@
 var test = require('tape');
-var sub = require('level-sublevel');
-var db = sub(require('level-test')()());
+var db = require('level-test')()();
 var tracker = require('../')(db);
 var through = require('through');
 
@@ -14,15 +13,16 @@ var expected = [
 
 test('put keys', function (t) {
     t.plan(expected.length * 2);
+
     var tr = tracker({ objectMode: true });
     tr.pipe(through(function (row) {
         t.ok(row.key >= 'f' && row.key <= 'p' || row.key === 'c');
         t.deepEqual(row, expected.shift());
     }));
-    
+
     tr.write('"c"\n');
     tr.write('["f","p"]\n');
-    
+
     db.batch([
         { type: 'put', key: 'abbot', value: { n: 5 } },
         { type: 'put', key: 'potato', value: { n: 4 } },
@@ -34,6 +34,6 @@ test('put keys', function (t) {
         { type: 'put', key: 'xylophone', value: { n: 555 } },
         { type: 'put', key: 'c', value: { n: 333 } }
     ]);
-    
-    t.on('end', function () { tr.end() });
+
+    t.on('end', function () { tr.end(); });
 });

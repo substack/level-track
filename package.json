@@ -4,14 +4,14 @@
   "description": "receive updates from a set of keys and ranges in leveldb",
   "main": "index.js",
   "dependencies": {
+    "level-hooks": "^4.5.0",
     "split": "~0.2.10",
     "stream-combiner": "~0.0.2",
     "through": "~2.3.4"
   },
   "devDependencies": {
-    "tape": "~1.0.4",
-    "level-sublevel": "~5.0.1",
-    "level-test": "~1.5.1"
+    "level-test": "^1.7.0",
+    "tape": "~1.0.4"
   },
   "scripts": {
     "test": "tape test/*.js"

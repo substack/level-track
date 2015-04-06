@@ -1,8 +1,10 @@
 var through = require('through');
 var combine = require('stream-combiner');
 var split = require('split');
+var hooks = require('level-hooks');
 
 module.exports = function (db) {
+    hooks(db);
     var trackingKeys = {};
     var trackingRange = [];
     db.hooks.post({ start: '', end: '~' }, function (change) {
@@ -21,21 +23,21 @@ module.exports = function (db) {
             }
         }
     });
-    
+
     return function (opts) {
         if (!opts) opts = {};
         var keyMap = opts.keyMap || function (x) { return x };
-        
+
         var localKeys = [];
         var localRange = [];
         var output = through(write, end);
         output._objectMode = opts.objectMode;
         return combine(split(), output);
-        
+
         function write (line) {
             try { var row = JSON.parse(line) }
             catch (e) { return }
-            
+
             if (typeof row === 'string') {
                 localKeys.push(row);
                 if (!trackingKeys[row]) trackingKeys[row] = [];
@@ -69,13 +71,13 @@ module.exports = function (db) {
                 removeRange(findRange(row.rm));
             }
         }
-        
+
         function end () {
             localKeys.forEach(removeKey);
             localRange.forEach(removeRange);
             output.queue(null);
         }
-        
+
         function removeKey (key) {
             var xs = trackingKeys[key];
             if (!xs) return;
@@ -83,12 +85,12 @@ module.exports = function (db) {
             if (ix >= 0) xs.splice(ix, 1);
             if (ix.length === 0) delete trackingKeys[key];
         }
-        
+
         function removeRange (r) {
             var ix = trackingRange.indexOf(r);
             if (ix >= 0) trackingRange.splice(ix, 1);
         }
-        
+
         function findRange (rf) {
             for (var i = 0; i < trackingRange.length; i++) {
                 var r = trackingRange[i];

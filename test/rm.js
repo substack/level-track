@@ -1,6 +1,5 @@
 var test = require('tape');
-var sub = require('level-sublevel');
-var db = sub(require('level-test')()());
+var db = require('level-test')()();
 var tracker = require('../')(db);
 var through = require('through');
 
@@ -19,7 +18,7 @@ test('put keys', function (t) {
     var tr = tracker({ objectMode: true });
     tr.pipe(through(function (row) {
         t.deepEqual(row, expected.shift());
-        
+
         if (expected.length === 1) {
             tr.write('{"rm":["f","p"]}\n');
             tr.write('{"rm":"v"}\n');
@@ -30,11 +29,11 @@ test('put keys', function (t) {
             ]);
         }
     }));
-    
+
     tr.write('"c"\n');
     tr.write('"v"\n');
     tr.write('["f","p"]\n');
-    
+
     db.batch([
         { type: 'put', key: 'abbot', value: { n: 5 } },
         { type: 'put', key: 'potato', value: { n: 4 } },
@@ -47,6 +46,6 @@ test('put keys', function (t) {
         { type: 'put', key: 'xylophone', value: { n: 555 } },
         { type: 'put', key: 'c', value: { n: 333 } }
     ]);
-    
+
     t.on('end', function () { tr.end() });
 });

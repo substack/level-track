@@ -11,8 +11,7 @@ singular key `"c"`. The database is then populated with random keys and values
 to show that only keys `"f"` through `"p"` inclusive and `"c"` are captured.
 
 ``` js
-var sub = require('level-sublevel');
-var db = sub(require('level')('test.db'));
+var db = require('level')('test.db');
 var tracker = require('level-track')(db);
 var through = require('through');
 

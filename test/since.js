@@ -1,7 +1,6 @@
 var test = require('tape');
-var sub = require('level-sublevel');
 var level = require('level-test')();
-var db = sub(level('track-since-test', { valueEncoding: 'json' }));
+var db = level('track-since-test', { valueEncoding: 'json' });
 var tracker = require('../')(db);
 var through = require('through');
 
@@ -29,14 +28,14 @@ test('setup', function (t) {
         { type: 'put', key: 'z', value: { n: 82 } }
     ], function () { t.end() });
 });
- 
+
 test('range with since', function (t) {
     t.plan(expected.length * 2);
     var tr = tracker({ objectMode: true });
     tr.pipe(through(function (row) {
         t.ok(row.key >= 'a' && row.key <= 'j');
         t.deepEqual(row, expected.shift());
-        
+
         if (row.key === 'f') {
             db.batch([
                 { type: 'put', key: 'g', value: { n: 16 } },
@@ -53,8 +52,8 @@ test('range with since', function (t) {
             ], function () { t.end() });
         }
     }));
-    
+
     tr.write('["a","j","d"]\n');
-    
+
     t.on('end', function () { tr.end() });
 });
